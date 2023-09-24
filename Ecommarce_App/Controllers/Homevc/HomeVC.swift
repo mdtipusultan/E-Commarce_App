@@ -11,24 +11,24 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
     @IBOutlet weak var collectionView: UICollectionView!
     
     var categories: [Category] = []
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.delegate = self
         collectionView.dataSource = self
-
-       fetchCategories()
+        
+        fetchCategories()
         
         // Configure UICollectionViewFlowLayout
-          configureCollectionViewLayout()
-
+        configureCollectionViewLayout()
+        
     }
     
     //MARK: Fetch categories using NetworkManager
     func fetchCategories(){
         NetworkManager.shared.fetchCategories { [weak self] categories in
             guard let categories = categories else { return }
-
+            
             self?.categories = categories
             DispatchQueue.main.async {
                 self?.collectionView.reloadData()
@@ -38,26 +38,26 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
     
     //MARK: Set up the UICollectionViewFlowLayout
     func configureCollectionViewLayout(){
-       
+        
         // Set up the UICollectionViewFlowLayout
-               if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-                   let screenWidth = UIScreen.main.bounds.width
-                   let cellWidth = (screenWidth - 30) / 2 // Two cells in a row with spacing of 10
-                   let cellHeight = cellWidth
-                   
-                   layout.itemSize = CGSize(width: cellWidth, height: cellHeight)
-                   layout.minimumLineSpacing = 10 // Adjust the spacing between rows
-                   layout.minimumInteritemSpacing = 10 // Adjust the spacing between cells in the same row
-               }
+        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            let screenWidth = UIScreen.main.bounds.width
+            let cellWidth = (screenWidth - 30) / 2 // Two cells in a row with spacing of 10
+            let cellHeight = cellWidth
+            
+            layout.itemSize = CGSize(width: cellWidth, height: cellHeight)
+            layout.minimumLineSpacing = 10 // Adjust the spacing between rows
+            layout.minimumInteritemSpacing = 10 // Adjust the spacing between cells in the same row
+        }
     }
-      
     
-//MARK: COLLECTTTIONVIEW
+    
+    //MARK: COLLECTTTIONVIEW
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         print(categories.count)
         return categories.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCollectionViewCell
         let category = categories[indexPath.item]
@@ -65,14 +65,29 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         cell.categoryNumber.text = "Items: \(category.itemCount)"
         return cell
     }
+    
+    // Handle category cell selection
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedCategory = categories[indexPath.item]
+        
+        // Instantiate the product list view controller
+        let productListVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ProductListVC") as! ProductListViewController
+        
+        // Pass the selected category data
+        productListVC.selectedCategory = selectedCategory
+        
+        // Push to the product list view controller
+        navigationController?.pushViewController(productListVC, animated: true)
+    }
+
     // MARK: UICollectionViewDelegateFlowLayout methods
-     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-         // Calculate the cell size based on screen width
-         let screenWidth = UIScreen.main.bounds.width
-         let cellWidth = (screenWidth - 50) / 2 // Two cells in a row with spacing of 10
-         let cellHeight = cellWidth
-         
-         return CGSize(width: cellWidth, height: cellHeight)
-     }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        // Calculate the cell size based on screen width
+        let screenWidth = UIScreen.main.bounds.width
+        let cellWidth = (screenWidth - 50) / 2
+        let cellHeight = cellWidth
+        
+        return CGSize(width: cellWidth, height: cellHeight)
+    }
     
 }
