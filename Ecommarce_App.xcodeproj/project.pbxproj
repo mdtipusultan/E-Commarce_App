@@ -68,8 +68,8 @@
 		E87F49DB2AC08B4900C01031 /* Ecommarce_App */ = {
 			isa = PBXGroup;
 			children = (
-				E87F4A202AC094A100C01031 /* model */,
-				E87F4A1D2AC0945B00C01031 /* networking */,
+				E87F4A1D2AC0945B00C01031 /* Networking */,
+				E87F4A202AC094A100C01031 /* Model */,
 				E87F4A1C2AC0914C00C01031 /* Views */,
 				E87F4A162AC0909D00C01031 /* Controllers */,
 				E87F49DC2AC08B4900C01031 /* AppDelegate.swift */,
@@ -108,21 +108,21 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		E87F4A1D2AC0945B00C01031 /* networking */ = {
+		E87F4A1D2AC0945B00C01031 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
 				E87F4A1E2AC0947700C01031 /* categories.json */,
 				E87F4A232AC0958000C01031 /* NetworkManager.swift */,
 			);
-			path = networking;
+			path = Networking;
 			sourceTree = "<group>";
 		};
-		E87F4A202AC094A100C01031 /* model */ = {
+		E87F4A202AC094A100C01031 /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				E87F4A212AC094E600C01031 /* Category.swift */,
 			);
-			path = model;
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
