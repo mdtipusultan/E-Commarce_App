@@ -21,7 +21,6 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         
         // Configure UICollectionViewFlowLayout
         configureCollectionViewLayout()
-        
     }
     
     //MARK: Fetch categories using NetworkManager
@@ -51,7 +50,6 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         }
     }
     
-    
     //MARK: COLLECTTTIONVIEW
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         print(categories.count)
@@ -62,21 +60,17 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCollectionViewCell
         let category = categories[indexPath.item]
         cell.categoryName.text = category.categoryName
-        cell.categoryNumber.text = "Items: \(category.itemCount)"
+        cell.categoryNumber.text = "Items: \(category.items.count)"
         return cell
     }
     
     // Handle category cell selection
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         let selectedCategory = categories[indexPath.item]
         
-        // Instantiate the product list view controller
-        let productListVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ProductListVC") as! ProductListViewController
-        
-        // Pass the selected category data
+        let productListVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ProductListVC") as! ProductListVC
         productListVC.selectedCategory = selectedCategory
-        
-        // Push to the product list view controller
         navigationController?.pushViewController(productListVC, animated: true)
     }
 

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -19,46 +20,62 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         
         tableView.dataSource = self
         tableView.delegate = self
-        // Fetch products for the selected category using selectedCategory data
-        fetchProducts()
-    }
-    
-    func fetchProducts() {
-        guard let selectedCategory = selectedCategory else { return }
-        
-        // Fetch products for the selected category using NetworkManager
-        NetworkManager.shared.fetchProducts(for: selectedCategory.categoryName) { [weak self] products in
-            guard let products = products else { return }
-            
-            self?.products = products
-            DispatchQueue.main.async {
-                self?.tableView.reloadData()
-            }
-        }
+
     }
     
     // MARK: - UITableViewDataSource
       
       func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
           print(products.count)
-          return products.count
+          // Check if the selected category exists and has items
+                if let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty {
+                    // Return the number of items in the selected category
+                    return selectedCategory.items.count
+                } else {
+                    // If no items or selectedCategory is nil, return 0 rows
+                    return 0
+                }
       }
-      
-      func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-          let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as! productListTableViewCell
-          
-          let product = products[indexPath.row]
-          
-          cell.productImage.image = URL(string: product.itemImage)
-          // Configure the cell with product data
-          //cell.productNameLabel.text = product.itemName
-          //cell.productPriceLabel.text = "$\(product.itemPrice)"
-          //cell.productDescriptionLabel.text = product.itemDescription
-          
-          // Load product image (you can use a library like SDWebImage to handle image loading)
-          // Example: cell.productImageView.sd_setImage(with: URL(string: product.itemImage), placeholderImage: UIImage(named: "placeholder"))
-          
-          return cell
-      }
+
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as! productListTableViewCell
+
+        // Check if the selected category exists and has items
+        if let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty {
+            let product = selectedCategory.items[indexPath.row]
+
+            // Use SDWebImage to load and set the product image
+            if let imageUrl = URL(string: product.itemImage) {
+                cell.productImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholderImage"))
+            }
+
+        }
+
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 150
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+           // Check if the selected category exists and has items
+           guard let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty else {
+               return
+           }
+           
+           // Get the selected product
+           let selectedProduct = selectedCategory.items[indexPath.row]
+           
+           // Create an instance of ProductDetailVC from the storyboard
+           if let productDetailVC = storyboard?.instantiateViewController(withIdentifier: "ProductDetailVC") as? ProductDetailVC {
+               // Pass the selected product to ProductDetailVC
+               productDetailVC.product = selectedProduct
+               
+               // Push or present ProductDetailVC
+               navigationController?.pushViewController(productDetailVC, animated: true)
+           }
+       }
 
 }
