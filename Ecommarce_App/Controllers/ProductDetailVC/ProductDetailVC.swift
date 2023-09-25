@@ -46,8 +46,11 @@ class ProductDetailVC: UIViewController {
             // Add the selected product to the cart
             Cart.shared.addItem(product)
           
-            // Post the CartUpdated notification
-            NotificationCenter.default.post(name: CartVC.cartUpdatedNotification, object: nil)
+            // Update the cart count in UserDefaults
+               UserDefaults.standard.set(Cart.shared.items.count, forKey: "CartItemCount")
+
+               // Manually update the badge on the tab bar item
+               tabBarController?.tabBar.items?[1].badgeValue = "\(Cart.shared.items.count)"
         }
     }
 }

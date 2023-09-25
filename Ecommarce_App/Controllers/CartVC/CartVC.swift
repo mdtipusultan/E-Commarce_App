@@ -17,26 +17,17 @@ class CartVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        
-        // Add an observer for the cartUpdatedNotification
-        NotificationCenter.default.addObserver(self, selector: #selector(updateCartBadge), name: CartVC.cartUpdatedNotification, object: nil)
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
         tableView.reloadData()
-        updateCartBadge()
-    }
-    //MARK: UPDATTE BADGE
-    @objc func updateCartBadge() {
-        let cartItemCount = Cart.shared.items.count
-        if cartItemCount > 0 {
-            // Set the badge value to the cart item count
+        // Update the badge using the count from UserDefaults
+        if let cartItemCount = UserDefaults.standard.value(forKey: "CartItemCount") as? Int {
             tabBarController?.tabBar.items?[1].badgeValue = "\(cartItemCount)"
-        } else {
-            // If there are no items in the cart, remove the badge
-            tabBarController?.tabBar.items?[1].badgeValue = nil
         }
     }
+
     //MARK: tableview
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return Cart.shared.items.count
