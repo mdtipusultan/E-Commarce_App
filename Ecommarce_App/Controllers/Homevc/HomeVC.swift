@@ -78,7 +78,7 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         // Calculate the cell size based on screen width
         let screenWidth = UIScreen.main.bounds.width
-        let cellWidth = (screenWidth - 50) / 2
+        let cellWidth = (screenWidth - 70) / 2
         let cellHeight = cellWidth
         
         return CGSize(width: cellWidth, height: cellHeight)

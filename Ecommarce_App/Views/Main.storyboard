@@ -241,17 +241,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="db4-Sc-FPY">
-                                <rect key="frame" x="122" y="160.66666666666669" width="170" height="184.66666666666669"/>
+                                <rect key="frame" x="107" y="160.66666666666663" width="200" height="200"/>
                                 <color key="tintColor" red="0.92440146209999996" green="0.47360330820000002" blue="0.2077231705" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="pUF-qx-9Uh"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="db4-Sc-FPY" firstAttribute="height" secondItem="uOM-fG-BJf" secondAttribute="height" multiplier="170/818" id="3Ze-XY-CjT"/>
                             <constraint firstItem="db4-Sc-FPY" firstAttribute="top" secondItem="pUF-qx-9Uh" secondAttribute="bottom" multiplier="150/764" id="47L-fv-ktP"/>
-                            <constraint firstItem="db4-Sc-FPY" firstAttribute="width" secondItem="uOM-fG-BJf" secondAttribute="width" multiplier="170/414" id="Aqi-OB-SBd"/>
-                            <constraint firstItem="db4-Sc-FPY" firstAttribute="centerX" secondItem="uOM-fG-BJf" secondAttribute="centerX" id="wDc-jO-GPq"/>
+                            <constraint firstItem="db4-Sc-FPY" firstAttribute="width" secondItem="uOM-fG-BJf" secondAttribute="width" multiplier="0.483092" id="Ezw-fW-Tqi"/>
+                            <constraint firstItem="db4-Sc-FPY" firstAttribute="height" secondItem="uOM-fG-BJf" secondAttribute="height" multiplier="0.224702" id="ZTk-v6-5B3"/>
+                            <constraint firstItem="db4-Sc-FPY" firstAttribute="centerX" secondItem="pUF-qx-9Uh" secondAttribute="centerX" id="nxb-Ln-G8A"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Profile" image="person" catalog="system" selectedImage="person.fill" id="YnT-g8-m0k"/>
