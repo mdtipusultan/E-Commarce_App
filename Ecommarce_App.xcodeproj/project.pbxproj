@@ -23,6 +23,8 @@
 		E87F4A2B2AC0A03E00C01031 /* productListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87F4A2A2AC0A03E00C01031 /* productListTableViewCell.swift */; };
 		E87F4A312AC0C20800C01031 /* categories.json in Resources */ = {isa = PBXBuildFile; fileRef = E87F4A302AC0C20800C01031 /* categories.json */; };
 		E87F4A342AC0C93700C01031 /* ProductDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87F4A332AC0C93700C01031 /* ProductDetailVC.swift */; };
+		E8D60A902AC190650027FFE4 /* Cart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D60A8F2AC190650027FFE4 /* Cart.swift */; };
+		E8D60A922AC192C80027FFE4 /* CartTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D60A912AC192C80027FFE4 /* CartTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,8 @@
 		E87F4A2A2AC0A03E00C01031 /* productListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = productListTableViewCell.swift; sourceTree = "<group>"; };
 		E87F4A302AC0C20800C01031 /* categories.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = categories.json; sourceTree = "<group>"; };
 		E87F4A332AC0C93700C01031 /* ProductDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailVC.swift; sourceTree = "<group>"; };
+		E8D60A8F2AC190650027FFE4 /* Cart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cart.swift; sourceTree = "<group>"; };
+		E8D60A912AC192C80027FFE4 /* CartTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				E87F4A212AC094E600C01031 /* Category.swift */,
+				E8D60A8F2AC190650027FFE4 /* Cart.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -169,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				E87F4A172AC090AB00C01031 /* CartVC.swift */,
+				E8D60A912AC192C80027FFE4 /* CartTableViewCell.swift */,
 			);
 			path = CartVC;
 			sourceTree = "<group>";
@@ -313,7 +319,9 @@
 				E87F4A0B2AC08EF900C01031 /* HomeVC.swift in Sources */,
 				E87F4A242AC0958000C01031 /* NetworkManager.swift in Sources */,
 				E87F4A292AC0A01C00C01031 /* ProductListVC.swift in Sources */,
+				E8D60A902AC190650027FFE4 /* Cart.swift in Sources */,
 				E87F49DD2AC08B4900C01031 /* AppDelegate.swift in Sources */,
+				E8D60A922AC192C80027FFE4 /* CartTableViewCell.swift in Sources */,
 				E87F4A222AC094E600C01031 /* Category.swift in Sources */,
 				E87F49DF2AC08B4900C01031 /* SceneDelegate.swift in Sources */,
 				E87F4A2B2AC0A03E00C01031 /* productListTableViewCell.swift in Sources */,
