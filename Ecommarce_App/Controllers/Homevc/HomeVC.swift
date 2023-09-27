@@ -24,6 +24,8 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     //MARK: Fetch categories using NetworkManager
+    //from json
+    /*
     func fetchCategories(){
         NetworkManager.shared.fetchCategories { [weak self] categories in
             guard let categories = categories else { return }
@@ -34,6 +36,29 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
             }
         }
     }
+   */
+    //froom api
+    func fetchCategories(){
+        NetworkManager.shared.fetchCategories { [weak self] categories in
+            DispatchQueue.main.async {
+                if let categories = categories {
+                    self?.categories = categories
+                    self?.collectionView.reloadData()
+                } else {
+                    // Display an alert to inform the user about the error
+                    self?.showErrorAlert(message: "Failed to fetch categories.")
+                }
+            }
+        }
+    }
+
+    // Helper method to display an error alert
+    private func showErrorAlert(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+
     
     //MARK: Set up the UICollectionViewFlowLayout
     func configureCollectionViewLayout(){
@@ -83,5 +108,4 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         
         return CGSize(width: cellWidth, height: cellHeight)
     }
-    
 }
