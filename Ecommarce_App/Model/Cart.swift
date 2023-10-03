@@ -23,7 +23,6 @@ class Cart {
         if let index = items.firstIndex(where: { $0.itemName == product.itemName }) {
             items.remove(at: index)
         }
-  
     }
     
     func clearCart() {

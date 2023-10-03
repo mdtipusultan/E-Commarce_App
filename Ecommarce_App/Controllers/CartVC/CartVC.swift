@@ -17,7 +17,6 @@ class CartVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
