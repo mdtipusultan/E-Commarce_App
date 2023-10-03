@@ -75,9 +75,4 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             navigationController?.pushViewController(productDetailVC, animated: true)
         }
     }
-     
-    
-
-        
-
 }
