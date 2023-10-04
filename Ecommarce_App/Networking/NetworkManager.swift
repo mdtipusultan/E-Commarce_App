@@ -32,11 +32,11 @@ class NetworkManager {
     // Define the Mockaroo API URL
     func fetchCategories(completion: @escaping ([Category]?) -> Void) {
         // Define the API endpoint URL
-        let apiURL = URL(string: "https://my.api.mockaroo.com/categories.json")!
+        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json")!
         
         // Create a URL request with the "X-API-Key" header
         var request = URLRequest(url: apiURL)
-        request.addValue("0fd08f70", forHTTPHeaderField: "X-API-Key")
+        request.addValue("ba8ba140", forHTTPHeaderField: "X-API-Key")
         
         // Create a URLSession data task to fetch the data
         URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -67,21 +67,48 @@ class NetworkManager {
     }
 
 
-    func fetchProducts(for category: String, completion: @escaping ([Product]?) -> Void) {
-        // Fetch categories
-        fetchCategories { categories in
-            if let categories = categories {
-                // Find the category with the specified name
-                if let foundCategory = categories.first(where: { $0.categoryName == category }) {
-                    let products = foundCategory.items
-                    completion(products)
-                } else {
-                    completion(nil)
-                }
-            } else {
-                completion(nil)
+    func fetchProducts(for category: String, page: Int, perPage: Int, completion: @escaping (PaginationInfo?, [Product]?) -> Void) {
+        // Define the Mockaroo API URL with query parameters for pagination
+        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json?page=\(page)&per_page=\(perPage)")!
+        
+        // Create a URL request with the "X-API-Key" header
+        var request = URLRequest(url: apiURL)
+        request.addValue("ba8ba140", forHTTPHeaderField: "X-API-Key")
+        
+        // Create a URLSession data task to fetch the data
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                print("Error fetching data: \(error)")
+                completion(nil, nil)
+                return
             }
-        }
+            
+            if let data = data {
+                do {
+                    // Parse the JSON data into an array of Product
+                    let products = try JSONDecoder().decode([Product].self, from: data)
+                    
+                    // Extract pagination information from the response headers or body if available
+                    if let httpResponse = response as? HTTPURLResponse {
+                        let paginationInfo = PaginationInfo(
+                            currentPage: page,
+                            totalPages: httpResponse.allHeaderFields["X-Total-Pages"] as? Int ?? 1,
+                            itemsPerPage: perPage
+                        )
+                        completion(paginationInfo, products)
+                    } else {
+                        // If pagination info is not available in the response, set it to nil
+                        let paginationInfo: PaginationInfo? = nil
+                        completion(paginationInfo, products)
+                    }
+                } catch {
+                    print("Error decoding products: \(error)")
+                    completion(nil, nil)
+                }
+            }
+        }.resume()
     }
+
+
 
 }

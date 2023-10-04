@@ -15,14 +15,62 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     var selectedCategory: Category?
     var products: [Product] = []
     
-    
-    
+    var currentPage: Int = 1
+    var totalPages: Int = 1 // Calculate this based on your data
+    var itemsPerPage: Int = 10
+    var isLoading: Bool = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.dataSource = self
         tableView.delegate = self
+        loadProducts()
+     }
+     
+     // Load products from the API
+    func loadProducts() {
+         guard !isLoading else {
+             return // Don't load more data if a request is already in progress
+         }
+         
+         isLoading = true
+         
+         NetworkManager.shared.fetchProducts(for: selectedCategory?.categoryName ?? "", page: currentPage, perPage: itemsPerPage) { [weak self] paginationInfo, response in
+             DispatchQueue.main.async {
+                 self?.isLoading = false
+                 
+                 if let paginationInfo = paginationInfo {
+                     // Extract pagination information
+                     self?.currentPage = paginationInfo.currentPage
+                     self?.totalPages = paginationInfo.totalPages
+                     self?.itemsPerPage = paginationInfo.itemsPerPage
+                 }
+                 
+                 if let response = response {
+                     // Append the new products to your existing array
+                     self?.products += response
+                     self?.tableView.reloadData()
+                 }
+             }
+         }
+     }
+
+    // Implement UITableViewDelegate's scrollViewDidScroll to load more products when scrolling to the end
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        
+        if offsetY > contentHeight - scrollView.frame.size.height {
+            // User has scrolled to the end, load more products if available
+            if currentPage < totalPages {
+                currentPage += 1
+                loadProducts()
+            }
+        }
     }
+
+
     
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -75,4 +123,5 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             navigationController?.pushViewController(productDetailVC, animated: true)
         }
     }
+
 }

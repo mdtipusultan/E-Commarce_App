@@ -7,9 +7,14 @@
 
 import Foundation
 
+struct PaginationInfo: Codable {
+    let currentPage: Int
+    let totalPages: Int
+    let itemsPerPage: Int
+}
+
 struct Category: Codable {
     let categoryName: String
-    //let itemCount: Int
     let items: [Product]
 }
 
@@ -18,4 +23,5 @@ struct Product: Codable {
     let itemPrice: Double
     let itemImage: String
     let itemDescription: String
+
 }
