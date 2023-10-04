@@ -13,25 +13,25 @@ class NetworkManager {
     private init() { }
     //for json
     /*
-    func fetchCategories(completion: @escaping ([Category]?) -> Void) {
-        if let path = Bundle.main.path(forResource: "categories", ofType: "json"),
-           let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-            do {
-                let categories = try JSONDecoder().decode([Category].self, from: data)
-                completion(categories)
-            } catch {
-                print("Error decoding categories: \(error)")
-                completion(nil)
-            }
-        } else {
-            completion(nil)
-        }
-    }
-    */
+     func fetchCategories(completion: @escaping ([Category]?) -> Void) {
+     if let path = Bundle.main.path(forResource: "categories", ofType: "json"),
+     let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+     do {
+     let categories = try JSONDecoder().decode([Category].self, from: data)
+     completion(categories)
+     } catch {
+     print("Error decoding categories: \(error)")
+     completion(nil)
+     }
+     } else {
+     completion(nil)
+     }
+     }
+     */
     //for api
-    // Define the Mockaroo API URL
+    
     func fetchCategories(completion: @escaping ([Category]?) -> Void) {
-        // Define the API endpoint URL
+        // Define the Mockaroo API URL
         let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json")!
         
         // Create a URL request with the "X-API-Key" header
@@ -47,13 +47,6 @@ class NetworkManager {
             }
             
             if let data = data {
-                // Print the raw JSON data (as a string)
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Received JSON data:\n\(jsonString)")
-                } else {
-                    print("Failed to convert data to JSON string")
-                }
-                
                 do {
                     // Parse the JSON data into an array of Category
                     let categories = try JSONDecoder().decode([Category].self, from: data)
@@ -64,22 +57,27 @@ class NetworkManager {
                 }
             }
         }.resume()
-    }
-
-
-    func fetchProducts(for category: String, page: Int, perPage: Int, completion: @escaping (PaginationInfo?, [Product]?) -> Void) {
-        // Define the Mockaroo API URL with query parameters for pagination
-        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json?page=\(page)&per_page=\(perPage)")!
+    }    
+    
+    func fetchProducts(for category: String, pageNumber: Int, pageSize: Int, completion: @escaping (Result<[Product], Error>) -> Void) {
+        // Define the Mockaroo API URL for fetching products with pagination
+        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json")!
         
-        // Create a URL request with the "X-API-Key" header
-        var request = URLRequest(url: apiURL)
+        // Create a URL request with the "X-API-Key" header and query parameters for pagination
+        var components = URLComponents(url: apiURL, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "category", value: category),
+            URLQueryItem(name: "page", value: String(pageNumber)),
+            URLQueryItem(name: "pageSize", value: String(pageSize)),
+        ]
+        
+        var request = URLRequest(url: components.url!)
         request.addValue("ba8ba140", forHTTPHeaderField: "X-API-Key")
         
         // Create a URLSession data task to fetch the data
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
-                print("Error fetching data: \(error)")
-                completion(nil, nil)
+                completion(.failure(error))
                 return
             }
             
@@ -87,28 +85,12 @@ class NetworkManager {
                 do {
                     // Parse the JSON data into an array of Product
                     let products = try JSONDecoder().decode([Product].self, from: data)
-                    
-                    // Extract pagination information from the response headers or body if available
-                    if let httpResponse = response as? HTTPURLResponse {
-                        let paginationInfo = PaginationInfo(
-                            currentPage: page,
-                            totalPages: httpResponse.allHeaderFields["X-Total-Pages"] as? Int ?? 1,
-                            itemsPerPage: perPage
-                        )
-                        completion(paginationInfo, products)
-                    } else {
-                        // If pagination info is not available in the response, set it to nil
-                        let paginationInfo: PaginationInfo? = nil
-                        completion(paginationInfo, products)
-                    }
+                    completion(.success(products))
                 } catch {
-                    print("Error decoding products: \(error)")
-                    completion(nil, nil)
+                    completion(.failure(error))
                 }
             }
         }.resume()
     }
-
-
 
 }

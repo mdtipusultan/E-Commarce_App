@@ -96,6 +96,7 @@ class HomeVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         
         let productListVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ProductListVC") as! ProductListVC
         productListVC.selectedCategory = selectedCategory
+        
         navigationController?.pushViewController(productListVC, animated: true)
     }
 

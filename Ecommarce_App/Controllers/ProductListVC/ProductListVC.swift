@@ -13,90 +13,56 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     @IBOutlet weak var tableView: UITableView!
     
     var selectedCategory: Category?
-    var products: [Product] = []
-    
-    var currentPage: Int = 1
-    var totalPages: Int = 1 // Calculate this based on your data
-    var itemsPerPage: Int = 10
-    var isLoading: Bool = false
+       var products: [Product] = []
+       var pageNumber = 1
+       var pageSize = 10
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.dataSource = self
         tableView.delegate = self
-        loadProducts()
-     }
-     
-     // Load products from the API
-    func loadProducts() {
-         guard !isLoading else {
-             return // Don't load more data if a request is already in progress
-         }
-         
-         isLoading = true
-         
-         NetworkManager.shared.fetchProducts(for: selectedCategory?.categoryName ?? "", page: currentPage, perPage: itemsPerPage) { [weak self] paginationInfo, response in
-             DispatchQueue.main.async {
-                 self?.isLoading = false
-                 
-                 if let paginationInfo = paginationInfo {
-                     // Extract pagination information
-                     self?.currentPage = paginationInfo.currentPage
-                     self?.totalPages = paginationInfo.totalPages
-                     self?.itemsPerPage = paginationInfo.itemsPerPage
-                 }
-                 
-                 if let response = response {
-                     // Append the new products to your existing array
-                     self?.products += response
-                     self?.tableView.reloadData()
-                 }
-             }
-         }
-     }
-
-    // Implement UITableViewDelegate's scrollViewDidScroll to load more products when scrolling to the end
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
         
-        if offsetY > contentHeight - scrollView.frame.size.height {
-            // User has scrolled to the end, load more products if available
-            if currentPage < totalPages {
-                currentPage += 1
-                loadProducts()
+        fetchFirstTenData()
+                
+        print(selectedCategory?.categoryName as Any)
+        // Load the first page of products
+              loadProducts()
+        print(selectedCategory?.categoryName as Any)
+     }
+    func fetchFirstTenData(){
+        // Check if a category is selected
+        if let selectedCategory = selectedCategory {
+            // Assuming that the "items" array in the selectedCategory contains all products,
+            // you can slice it to get the first 10 items.
+            let startIndex = (pageNumber - 1) * pageSize
+            let endIndex = min(startIndex + pageSize, selectedCategory.items.count)
+            
+            if startIndex < endIndex {
+                products = Array(selectedCategory.items[startIndex..<endIndex])
+            } else {
+                products = []
             }
         }
+        
+        print(products)
     }
-
-
     
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(products.count)
-        // Check if the selected category exists and has items
-        if let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty {
-            // Return the number of items in the selected category
-            return selectedCategory.items.count
-        } else {
-            // If no items or selectedCategory is nil, return 0 rows
-            return 0
-        }
+        return products.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as! productListTableViewCell
         
-        // Check if the selected category exists and has items
-        if let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty {
-            let product = selectedCategory.items[indexPath.row]
-            
-            // Use SDWebImage to load and set the product image
-            if let imageUrl = URL(string: product.itemImage) {
-                cell.productImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholderImage"))
-            }
-        }
+        let product = products[indexPath.row]
+               
+               // Use SDWebImage to load and set the product image
+               if let imageUrl = URL(string: product.itemImage) {
+                   cell.productImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholderImage"))
+               }
         
         return cell
     }
@@ -106,22 +72,61 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Check if the selected category exists and has items
-        guard let selectedCategory = selectedCategory, !selectedCategory.items.isEmpty else {
+          guard indexPath.row < products.count else {
+              return
+          }
+          
+          // Get the selected product
+          let selectedProduct = products[indexPath.row]
+          
+          // Create an instance of ProductDetailVC from the storyboard
+          if let productDetailVC = storyboard?.instantiateViewController(withIdentifier: "ProductDetailVC") as? ProductDetailVC {
+              // Pass the selected product to ProductDetailVC
+              productDetailVC.product = selectedProduct
+              
+              // Push or present ProductDetailVC
+              navigationController?.pushViewController(productDetailVC, animated: true)
+          }
+      }
+    
+    //MARK: LOAD-PRODUCTS
+    func loadProducts() {
+        guard let selectedCategory = selectedCategory else {
             return
         }
         
-        // Get the selected product
-        let selectedProduct = selectedCategory.items[indexPath.row]
-        
-        // Create an instance of ProductDetailVC from the storyboard
-        if let productDetailVC = storyboard?.instantiateViewController(withIdentifier: "ProductDetailVC") as? ProductDetailVC {
-            // Pass the selected product to ProductDetailVC
-            productDetailVC.product = selectedProduct
-            
-            // Push or present ProductDetailVC
-            navigationController?.pushViewController(productDetailVC, animated: true)
+        // Fetch products for the selected category with pagination
+        NetworkManager.shared.fetchProducts(for: selectedCategory.categoryName, pageNumber: pageNumber, pageSize: pageSize) { [weak self] result in
+            switch result {
+            case .success(let products):
+                // Append the new products to the existing products array
+                self?.products.append(contentsOf: products)
+                
+                // Refresh the table view on the main thread
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
+                
+                // Increment the page number for the next request
+                self?.pageNumber += 1
+                
+            case .failure(let error):
+                print("Error fetching products: \(error)")
+            }
         }
     }
+
+        
+        // Load more products when reaching the end of the table view
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            let offsetY = scrollView.contentOffset.y
+            let contentHeight = scrollView.contentSize.height
+            let screenHeight = scrollView.frame.size.height
+            
+            if offsetY > contentHeight - screenHeight {
+                // Reached the end of the table view, load more products
+                loadProducts()
+            }
+        }
 
 }
