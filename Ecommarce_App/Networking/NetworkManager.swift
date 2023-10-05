@@ -32,11 +32,11 @@ class NetworkManager {
     
     func fetchCategories(completion: @escaping ([Category]?) -> Void) {
         // Define the Mockaroo API URL
-        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json")!
+        let apiURL = URL(string: "https://my.api.mockaroo.com/eco.json")!
         
         // Create a URL request with the "X-API-Key" header
         var request = URLRequest(url: apiURL)
-        request.addValue("ba8ba140", forHTTPHeaderField: "X-API-Key")
+        request.addValue("a1321210", forHTTPHeaderField: "X-API-Key")
         
         // Create a URLSession data task to fetch the data
         URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -61,7 +61,7 @@ class NetworkManager {
     
     func fetchProducts(for category: String, pageNumber: Int, pageSize: Int, completion: @escaping (Result<[Product], Error>) -> Void) {
         // Define the Mockaroo API URL for fetching products with pagination
-        let apiURL = URL(string: "https://my.api.mockaroo.com/ecomarce_app.json")!
+        let apiURL = URL(string: "https://my.api.mockaroo.com/eco.json")!
         
         // Create a URL request with the "X-API-Key" header and query parameters for pagination
         var components = URLComponents(url: apiURL, resolvingAgainstBaseURL: false)!
@@ -72,7 +72,7 @@ class NetworkManager {
         ]
         
         var request = URLRequest(url: components.url!)
-        request.addValue("ba8ba140", forHTTPHeaderField: "X-API-Key")
+        request.addValue("a1321210", forHTTPHeaderField: "X-API-Key")
         
         // Create a URLSession data task to fetch the data
         URLSession.shared.dataTask(with: request) { (data, response, error) in
