@@ -22,4 +22,3 @@ struct Product: Codable {
     let itemImage: String
     let itemDescription: String
 }
-

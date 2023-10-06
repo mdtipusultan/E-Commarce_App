@@ -11,14 +11,13 @@ import SDWebImage
 class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
-    
-    
+        
     var selectedCategory: Category?
     var products: [Product] = []
     var currentPage = 1
     let itemsPerPage = 10
-    private var isLoading = false // Add this property to track loading state
-    private var loadingView: UIActivityIndicatorView! // Add a loading spinner view
+    private var isLoading = false
+    private var loadingView: UIActivityIndicatorView!
     private var tableViewFooter: UIView!
     
     override func viewDidLoad() {
@@ -28,22 +27,21 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         tableView.delegate = self
         
         // Initialize the loading spinner
-          loadingView = UIActivityIndicatorView(style: .medium)
-          
-          // Create a custom footer view for the table view
-          tableViewFooter = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 50))
-          tableViewFooter.addSubview(loadingView)
-          
-          // Center the loading indicator within the footer view
-          loadingView.center = CGPoint(x: tableViewFooter.bounds.midX, y: tableViewFooter.bounds.midY)
-          
-          // Set the table view's footer view
-          tableView.tableFooterView = tableViewFooter
+        loadingView = UIActivityIndicatorView(style: .medium)
+        
+        // Create a custom footer view for the table view
+        tableViewFooter = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 50))
+        tableViewFooter.addSubview(loadingView)
+        
+        // Center the loading indicator within the footer view
+        loadingView.center = CGPoint(x: tableViewFooter.bounds.midX, y: tableViewFooter.bounds.midY)
+        
+        // Set the table view's footer view
+        tableView.tableFooterView = tableViewFooter
         loadNextPage()
     }
     
     // MARK: - UITableViewDataSource
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(products.count)
         return products.count
@@ -83,50 +81,8 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             navigationController?.pushViewController(productDetailVC, animated: true)
         }
     }
-    /*
-    private func loadNextPage() {
-        // Check if loading is already in progress or there are no more pages to load
-        guard !isLoading else { return }
-        
-        // Set the isLoading flag to true to prevent multiple requests
-        isLoading = true
-        
-        // Calculate the range for the next page
-        let startIndex = currentPage * itemsPerPage
-        let endIndex = min(startIndex + itemsPerPage, selectedCategory?.items.count ?? 0)
-        
-        // Check if there are more items to load
-        guard startIndex < endIndex else {
-            isLoading = false
-            return
-        }
-        
-        // Fetch the next page of products for the selected category
-        let nextPageProducts = Array(selectedCategory?.items[startIndex..<endIndex] ?? [])
-        
-        // Append the new products to the existing products array
-        products += nextPageProducts
-        
-        // Increment the current page
-        currentPage += 1
-        
-        // Reload the table view on the main thread
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-        
-        // Check if there are more items to load
-        if endIndex >= (selectedCategory?.items.count ?? 0) {
-            // All items have been loaded, disable further pagination
-            isLoading = true
-        } else {
-            // There may be more items to load, allow pagination
-            isLoading = false
-        }
-    }
-*/
-   
-
+    
+    // MARK: - newData
     private func loadNextPage() {
         // Check if loading is already in progress or there are no more pages to load
         guard !isLoading, let selectedCategory = selectedCategory else { return }
@@ -177,6 +133,7 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             }
         }
     }
+    // MARK: - scrollDown
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -186,6 +143,4 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             loadNextPage()
         }
     }
-
-
 }
