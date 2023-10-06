@@ -12,43 +12,38 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     @IBOutlet weak var tableView: UITableView!
     
+    
     var selectedCategory: Category?
-       var products: [Product] = []
-       var pageNumber = 1
-       var pageSize = 10
-
+    var products: [Product] = []
+    var currentPage = 1
+    let itemsPerPage = 10
+    private var isLoading = false // Add this property to track loading state
+    private var loadingView: UIActivityIndicatorView! // Add a loading spinner view
+    private var tableViewFooter: UIView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.dataSource = self
         tableView.delegate = self
         
-        fetchFirstTenData()
-                
-        print(selectedCategory?.categoryName as Any)
-        // Load the first page of products
-              loadProducts()
-        print(selectedCategory?.categoryName as Any)
-     }
-    func fetchFirstTenData(){
-        // Check if a category is selected
-        if let selectedCategory = selectedCategory {
-            // Assuming that the "items" array in the selectedCategory contains all products,
-            // you can slice it to get the first 10 items.
-            let startIndex = (pageNumber - 1) * pageSize
-            let endIndex = min(startIndex + pageSize, selectedCategory.items.count)
-            
-            if startIndex < endIndex {
-                products = Array(selectedCategory.items[startIndex..<endIndex])
-            } else {
-                products = []
-            }
-        }
-        
-        print(products)
+        // Initialize the loading spinner
+          loadingView = UIActivityIndicatorView(style: .medium)
+          
+          // Create a custom footer view for the table view
+          tableViewFooter = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 50))
+          tableViewFooter.addSubview(loadingView)
+          
+          // Center the loading indicator within the footer view
+          loadingView.center = CGPoint(x: tableViewFooter.bounds.midX, y: tableViewFooter.bounds.midY)
+          
+          // Set the table view's footer view
+          tableView.tableFooterView = tableViewFooter
+        loadNextPage()
     }
     
     // MARK: - UITableViewDataSource
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(products.count)
         return products.count
@@ -58,11 +53,11 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as! productListTableViewCell
         
         let product = products[indexPath.row]
-               
-               // Use SDWebImage to load and set the product image
-               if let imageUrl = URL(string: product.itemImage) {
-                   cell.productImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholderImage"))
-               }
+        
+        // Use SDWebImage to load and set the product image
+        if let imageUrl = URL(string: product.itemImage) {
+            cell.productImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholderImage"))
+        }
         
         return cell
     }
@@ -72,61 +67,125 @@ class ProductListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-          guard indexPath.row < products.count else {
-              return
-          }
-          
-          // Get the selected product
-          let selectedProduct = products[indexPath.row]
-          
-          // Create an instance of ProductDetailVC from the storyboard
-          if let productDetailVC = storyboard?.instantiateViewController(withIdentifier: "ProductDetailVC") as? ProductDetailVC {
-              // Pass the selected product to ProductDetailVC
-              productDetailVC.product = selectedProduct
-              
-              // Push or present ProductDetailVC
-              navigationController?.pushViewController(productDetailVC, animated: true)
-          }
-      }
-    
-    //MARK: LOAD-PRODUCTS
-    func loadProducts() {
-        guard let selectedCategory = selectedCategory else {
+        guard indexPath.row < products.count else {
             return
         }
         
-        // Fetch products for the selected category with pagination
-        NetworkManager.shared.fetchProducts(for: selectedCategory.categoryName, pageNumber: pageNumber, pageSize: pageSize) { [weak self] result in
-            switch result {
-            case .success(let products):
-                // Append the new products to the existing products array
-                self?.products.append(contentsOf: products)
+        // Get the selected product
+        let selectedProduct = products[indexPath.row]
+        
+        // Create an instance of ProductDetailVC from the storyboard
+        if let productDetailVC = storyboard?.instantiateViewController(withIdentifier: "ProductDetailVC") as? ProductDetailVC {
+            // Pass the selected product to ProductDetailVC
+            productDetailVC.product = selectedProduct
+            
+            // Push or present ProductDetailVC
+            navigationController?.pushViewController(productDetailVC, animated: true)
+        }
+    }
+    /*
+    private func loadNextPage() {
+        // Check if loading is already in progress or there are no more pages to load
+        guard !isLoading else { return }
+        
+        // Set the isLoading flag to true to prevent multiple requests
+        isLoading = true
+        
+        // Calculate the range for the next page
+        let startIndex = currentPage * itemsPerPage
+        let endIndex = min(startIndex + itemsPerPage, selectedCategory?.items.count ?? 0)
+        
+        // Check if there are more items to load
+        guard startIndex < endIndex else {
+            isLoading = false
+            return
+        }
+        
+        // Fetch the next page of products for the selected category
+        let nextPageProducts = Array(selectedCategory?.items[startIndex..<endIndex] ?? [])
+        
+        // Append the new products to the existing products array
+        products += nextPageProducts
+        
+        // Increment the current page
+        currentPage += 1
+        
+        // Reload the table view on the main thread
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+        
+        // Check if there are more items to load
+        if endIndex >= (selectedCategory?.items.count ?? 0) {
+            // All items have been loaded, disable further pagination
+            isLoading = true
+        } else {
+            // There may be more items to load, allow pagination
+            isLoading = false
+        }
+    }
+*/
+   
+
+    private func loadNextPage() {
+        // Check if loading is already in progress or there are no more pages to load
+        guard !isLoading, let selectedCategory = selectedCategory else { return }
+        
+        // Set the isLoading flag to true to prevent multiple requests
+        isLoading = true
+        
+        // Show the loading spinner
+        loadingView.startAnimating()
+        
+        // Calculate the range for the next page
+        let startIndex = (currentPage - 1) * itemsPerPage
+        let endIndex = min(startIndex + itemsPerPage, selectedCategory.items.count)
+        
+        // Check if there are more items to load
+        guard startIndex < endIndex else {
+            isLoading = false
+            loadingView.stopAnimating() // Stop the loading spinner
+            return
+        }
+        
+        // Fetch the next page of products for the selected category
+        let nextPageProducts = Array(selectedCategory.items[startIndex..<endIndex])
+        
+        // Append the new products to the existing products array
+        products += nextPageProducts
+        
+        // Increment the current page
+        currentPage += 1
+        
+        // Reload the table view on the main thread
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            
+            // Delay for 2-3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                // Hide the loading spinner
+                self.loadingView.stopAnimating()
                 
-                // Refresh the table view on the main thread
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
+                // Check if there are more items to load
+                if endIndex >= selectedCategory.items.count {
+                    // All items have been loaded, disable further pagination
+                    self.isLoading = true
+                } else {
+                    // There may be more items to load, allow pagination
+                    self.isLoading = false
                 }
-                
-                // Increment the page number for the next request
-                self?.pageNumber += 1
-                
-            case .failure(let error):
-                print("Error fetching products: \(error)")
             }
         }
     }
-
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
         
-        // Load more products when reaching the end of the table view
-        func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            let offsetY = scrollView.contentOffset.y
-            let contentHeight = scrollView.contentSize.height
-            let screenHeight = scrollView.frame.size.height
-            
-            if offsetY > contentHeight - screenHeight {
-                // Reached the end of the table view, load more products
-                loadProducts()
-            }
+        if offsetY > contentHeight - height {
+            loadNextPage()
         }
+    }
+
 
 }

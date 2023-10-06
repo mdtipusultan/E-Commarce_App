@@ -57,40 +57,31 @@ class NetworkManager {
                 }
             }
         }.resume()
-    }    
-    
-    func fetchProducts(for category: String, pageNumber: Int, pageSize: Int, completion: @escaping (Result<[Product], Error>) -> Void) {
-        // Define the Mockaroo API URL for fetching products with pagination
-        let apiURL = URL(string: "https://my.api.mockaroo.com/eco.json")!
-        
-        // Create a URL request with the "X-API-Key" header and query parameters for pagination
-        var components = URLComponents(url: apiURL, resolvingAgainstBaseURL: false)!
-        components.queryItems = [
-            URLQueryItem(name: "category", value: category),
-            URLQueryItem(name: "page", value: String(pageNumber)),
-            URLQueryItem(name: "pageSize", value: String(pageSize)),
-        ]
-        
-        var request = URLRequest(url: components.url!)
-        request.addValue("a1321210", forHTTPHeaderField: "X-API-Key")
-        
-        // Create a URLSession data task to fetch the data
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            if let data = data {
-                do {
-                    // Parse the JSON data into an array of Product
-                    let products = try JSONDecoder().decode([Product].self, from: data)
-                    completion(.success(products))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
-        }.resume()
     }
-
+    
+    func fetchProducts(for category: String, page: Int, itemsPerPage: Int, completion: @escaping ([Product]?) -> Void) {
+        // Fetch categories
+        fetchCategories { categories in
+            if let categories = categories {
+                // Find the category with the specified name
+                if let foundCategory = categories.first(where: { $0.categoryName == category }) {
+                    let startIndex = (page - 1) * itemsPerPage
+                    let endIndex = min(startIndex + itemsPerPage, foundCategory.items.count)
+                    
+                    // Check if there are more items to load
+                    if startIndex >= endIndex {
+                        completion(nil) // No more items to load
+                        return
+                    }
+                    
+                    let products = Array(foundCategory.items[startIndex..<endIndex])
+                    completion(products)
+                } else {
+                    completion(nil)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
 }
